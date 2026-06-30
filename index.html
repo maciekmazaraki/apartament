@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klucze Mieszkania — Wynajem w Twoim mieście</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15191c;
+    --paper:#f2ede2;
+    --paper-soft:#faf7f0;
+    --brass:#a3783a;
+    --brass-dark:#7c5a2a;
+    --sage:#5f6a55;
+    --line:rgba(21,25,28,0.14);
+    --radius:2px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    letter-spacing:-0.01em;
+  }
+  .mono{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:0.02em;
+  }
+  a{color:inherit;}
+  img{display:block; max-width:100%;}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(242,237,226,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    max-width:1180px; margin:0 auto;
+    padding:18px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:'Fraunces', serif;
+    font-size:1.25rem;
+    font-weight:600;
+  }
+  .logo span{color:var(--brass);}
+  nav{display:flex; gap:28px; align-items:center;}
+  nav a{
+    font-size:0.85rem;
+    text-decoration:none;
+    color:var(--ink);
+    opacity:0.75;
+    transition:opacity 0.2s;
+  }
+  nav a:hover, nav a:focus-visible{opacity:1;}
+  nav a.cta{
+    opacity:1;
+    border:1px solid var(--ink);
+    padding:9px 18px;
+    border-radius:var(--radius);
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:1180px; margin:0 auto;
+    padding:96px 32px 80px;
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:60px;
+    align-items:end;
+  }
+  .hero-eyebrow{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    color:var(--sage);
+    margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .hero-eyebrow::before{
+    content:"";
+    width:28px; height:1px;
+    background:var(--brass);
+    display:inline-block;
+  }
+  .hero h1{
+    font-size:clamp(2.6rem, 5vw, 4.1rem);
+    line-height:1.04;
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--brass-dark);
+  }
+  .hero-sub{
+    margin-top:26px;
+    max-width:46ch;
+    font-size:1.05rem;
+    line-height:1.6;
+    color:#3a3f37;
+  }
+  .hero-keyline{
+    border-left:1px solid var(--line);
+    padding-left:28px;
+  }
+  .hero-keyline dl{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:10px 16px;
+    font-size:0.9rem;
+  }
+  .hero-keyline dt{color:var(--sage); }
+  .hero-keyline dd{font-family:'JetBrains Mono', monospace;}
+
+  /* ---------- section shell ---------- */
+  section{max-width:1180px; margin:0 auto; padding:0 32px;}
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:40px; padding-top:88px;
+    border-top:1px solid var(--line);
+  }
+  .section-head .num{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+    color:var(--brass);
+  }
+  .section-head h2{font-size:2rem;}
+  .section-head p{
+    max-width:34ch; text-align:right;
+    font-size:0.92rem; color:var(--sage);
+  }
+
+  /* ---------- toggle switch ---------- */
+  .switch{
+    display:inline-flex;
+    border:1px solid var(--ink);
+    border-radius:999px;
+    padding:3px;
+    position:relative;
+    background:var(--paper-soft);
+  }
+  .switch button{
+    border:none; background:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    padding:8px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    position:relative; z-index:2;
+    color:var(--ink);
+    transition:color 0.25s;
+  }
+  .switch button[aria-pressed="true"]{color:var(--paper-soft);}
+  .switch .thumb{
+    position:absolute; top:3px; left:3px;
+    height:calc(100% - 6px);
+    width:calc(50% - 3px);
+    background:var(--ink);
+    border-radius:999px;
+    transition:transform 0.28s cubic-bezier(.65,0,.35,1);
+    z-index:1;
+  }
+  .switch[data-mode="private"] .thumb{transform:translateX(100%);}
+
+  /* ---------- apartment cards ---------- */
+  .listings{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:36px;
+    margin-bottom:60px;
+  }
+  .card{
+    border:1px solid var(--line);
+    background:var(--paper-soft);
+    overflow:hidden;
+  }
+  .card-media{
+    aspect-ratio:4/3;
+    background:
+      repeating-linear-gradient(135deg, rgba(21,25,28,0.06) 0 2px, transparent 2px 14px),
+      #e7ded0;
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .card-media .zoom-hint{
+    position:absolute; bottom:10px; right:10px;
+    background:rgba(21,25,28,0.72);
+    color:var(--paper-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    padding:5px 10px;
+    border-radius:999px;
+    pointer-events:none;
+    opacity:0.9;
+  }
+  .thumb-strip{
+    display:flex; gap:6px;
+    padding:8px;
+    background:var(--paper-soft);
+    overflow-x:auto;
+    border-bottom:1px solid var(--line);
+  }
+  .thumb-strip img{
+    width:64px; height:48px;
+    object-fit:cover;
+    flex:none;
+    cursor:pointer;
+    opacity:0.7;
+    border:1px solid transparent;
+    transition:opacity 0.2s, border-color 0.2s;
+  }
+  .thumb-strip img:hover{opacity:1;}
+  .thumb-strip img.active{opacity:1; border-color:var(--brass);}
+
+  /* ---------- lightbox ---------- */
+  .lightbox{
+    display:none;
+    position:fixed; inset:0; z-index:200;
+    background:rgba(15,18,20,0.94);
+    align-items:center; justify-content:center;
+    flex-direction:column;
+    padding:40px 20px;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox img{
+    max-width:min(900px, 90vw);
+    max-height:70vh;
+    object-fit:contain;
+    border:1px solid rgba(255,255,255,0.1);
+  }
+  .lightbox-caption{
+    color:var(--paper-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    margin-top:16px;
+    opacity:0.75;
+  }
+  .lightbox-close{
+    position:absolute; top:24px; right:32px;
+    background:none; border:none;
+    color:var(--paper-soft);
+    font-size:1.6rem;
+    cursor:pointer;
+    line-height:1;
+  }
+  .lightbox-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    background:none; border:none;
+    color:var(--paper-soft);
+    font-size:2.2rem;
+    cursor:pointer;
+    padding:10px 16px;
+    opacity:0.7;
+    transition:opacity 0.2s;
+  }
+  .lightbox-nav:hover{opacity:1;}
+  .lightbox-prev{left:8px;}
+  .lightbox-next{right:8px;}
+  .card-media img{width:100%; height:100%; object-fit:cover;}
+  .card-media .ph-label{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.75rem; color:var(--sage);
+    text-align:center; padding:20px;
+  }
+  .card-body{padding:26px 28px 28px;}
+  .card-top{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    margin-bottom:6px;
+  }
+  .card-id{font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--brass); }
+  .card-body h3{font-size:1.5rem; margin-top:2px;}
+  .card-addr{font-size:0.85rem; color:var(--sage); margin-top:4px;}
+  .card-specs{
+    display:flex; gap:18px; margin:18px 0;
+    font-size:0.82rem; color:#3a3f37;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:14px 0;
+  }
+  .card-specs span{font-family:'JetBrains Mono', monospace; color:var(--ink); margin-right:4px;}
+  .card-desc{font-size:0.92rem; line-height:1.6; color:#33372f; margin-bottom:22px;}
+
+  .price-row{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .price-row .price{font-family:'Fraunces', serif; font-size:1.5rem;}
+  .price-row .price small{font-family:'Inter',sans-serif; font-size:0.8rem; color:var(--sage); font-weight:400;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+    padding:14px 20px;
+    border:1px solid var(--ink);
+    text-decoration:none;
+    font-size:0.88rem;
+    font-weight:500;
+    border-radius:var(--radius);
+    transition:background 0.2s, color 0.2s;
+  }
+  .btn-airbnb{background:var(--ink); color:var(--paper-soft);}
+  .btn-airbnb:hover{background:var(--brass-dark); border-color:var(--brass-dark);}
+  .btn-outline{background:transparent; color:var(--ink);}
+  .btn-outline:hover{background:var(--ink); color:var(--paper-soft);}
+  .private-note{
+    font-size:0.8rem; color:var(--sage); margin-top:10px; line-height:1.5;
+  }
+
+  /* ---------- contact section ---------- */
+  .contact-wrap{
+    display:grid; grid-template-columns:0.9fr 1.1fr; gap:60px;
+    padding-bottom:100px;
+  }
+  .contact-info h3{font-size:1.6rem; margin-bottom:16px;}
+  .contact-info p{font-size:0.95rem; line-height:1.65; color:#3a3f37; margin-bottom:28px; max-width:40ch;}
+  .contact-channels{display:flex; flex-direction:column; gap:14px;}
+  .channel{
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    padding-bottom:14px;
+    text-decoration:none; color:var(--ink);
+  }
+  .channel-label{font-size:0.78rem; color:var(--sage); text-transform:uppercase; letter-spacing:0.08em;}
+  .channel-value{font-family:'JetBrains Mono', monospace; font-size:0.95rem;}
+  .channel-arrow{opacity:0.4; transition:transform 0.2s, opacity 0.2s;}
+  .channel:hover .channel-arrow{transform:translateX(4px); opacity:1;}
+
+  form{display:flex; flex-direction:column; gap:18px;}
+  .field{display:flex; flex-direction:column; gap:8px;}
+  .field label{font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--sage);}
+  .field input, .field select, .field textarea{
+    border:none; border-bottom:1px solid var(--line);
+    background:transparent;
+    padding:10px 2px;
+    font-family:'Inter', sans-serif;
+    font-size:0.98rem;
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none; border-bottom-color:var(--brass);
+  }
+  .field textarea{resize:vertical; min-height:90px;}
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .submit-btn{
+    margin-top:8px;
+    align-self:flex-start;
+    padding:14px 30px;
+    background:var(--ink);
+    color:var(--paper-soft);
+    border:none;
+    font-size:0.88rem;
+    font-weight:500;
+    cursor:pointer;
+    border-radius:var(--radius);
+    transition:background 0.2s;
+  }
+  .submit-btn:hover{background:var(--brass-dark);}
+  .form-note{font-size:0.78rem; color:var(--sage); margin-top:4px;}
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:32px;
+  }
+  .footer-inner{
+    max-width:1180px; margin:0 auto;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:0.78rem; color:var(--sage);
+  }
+
+  @media (max-width:880px){
+    .hero{grid-template-columns:1fr; padding-top:64px;}
+    .hero-keyline{border-left:none; border-top:1px solid var(--line); padding-left:0; padding-top:24px;}
+    .listings{grid-template-columns:1fr;}
+    .contact-wrap{grid-template-columns:1fr; gap:48px;}
+    .form-row{grid-template-columns:1fr;}
+    nav{display:none;}
+    .section-head{flex-direction:column; align-items:flex-start; gap:10px;}
+    .section-head p{text-align:left;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; scroll-behavior:auto !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">apartament pod dobrym<span>.</span>adresem</div>
+    <nav>
+      <a href="#oferta">Oferta</a>
+      <a href="#kontakt">Kontakt</a>
+      <a href="#kontakt" class="cta">Zapytaj o wynajem</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="hero-eyebrow">Wynajem mieszkań · dwie ścieżki</div>
+    <h1>Dwa mieszkania,<br><em>dwa sposoby</em> najmu.</h1>
+    <p class="hero-sub">
+      Rezerwuj przez Airbnb na krótki pobyt, albo napisz bezpośrednio
+      i ustal najem prywatny — bez prowizji platformy, bezpośrednio z właścicielem.
+    </p>
+  </div>
+  <div class="hero-keyline">
+    <dl>
+      <dt>Lokalizacje</dt><dd>2 mieszkania</dd>
+      <dt>Airbnb</dt><dd>rezerwacja online</dd>
+      <dt>Prywatnie</dt><dd>telefon / e-mail / WhatsApp</dd>
+      <dt>Odpowiedź</dt><dd>zwykle &lt; 24h</dd>
+    </dl>
+  </div>
+</section>
+
+<section id="oferta">
+  <div class="section-head">
+    <div>
+      <div class="num">01 / Oferta</div>
+      <h2>Dostępne mieszkania</h2>
+    </div>
+    <p>Każde mieszkanie możesz zarezerwować przez Airbnb, albo zapytać o wynajem prywatny.</p>
+  </div>
+
+  <div class="listings">
+
+    <!-- APARTMENT 1 — GÓRSKA -->
+    <article class="card">
+            <div class="card-media" data-gallery="gorska">
+        <img src="images/gorska/gorska-01.jpg" alt="Apartament Górska, Dolny Mokotów">
+        <span class="zoom-hint">Powiększ ⤢</span>
+      </div>
+      <div class="thumb-strip" data-gallery-thumbs="gorska">
+        <img src="images/gorska/gorska-01.jpg" class="active" data-idx="0">
+        <img src="images/gorska/gorska-02.jpg" data-idx="1">
+        <img src="images/gorska/gorska-03.jpg" data-idx="2">
+        <img src="images/gorska/gorska-04.jpg" data-idx="3">
+        <img src="images/gorska/gorska-05.jpg" data-idx="4">
+        <img src="images/gorska/gorska-06.jpg" data-idx="5">
+        <img src="images/gorska/gorska-07.jpg" data-idx="6">
+        <img src="images/gorska/gorska-08.jpg" data-idx="7">
+        <img src="images/gorska/gorska-09.jpg" data-idx="8">
+        <img src="images/gorska/gorska-10.jpg" data-idx="9">
+        <img src="images/gorska/gorska-11.jpg" data-idx="10">
+        <img src="images/gorska/gorska-12.jpg" data-idx="11">
+        <img src="images/gorska/gorska-13.jpg" data-idx="12">
+        <img src="images/gorska/gorska-14.jpg" data-idx="13">
+        <img src="images/gorska/gorska-15.jpg" data-idx="14">
+        <img src="images/gorska/gorska-16.jpg" data-idx="15">
+        <img src="images/gorska/gorska-17.jpg" data-idx="16">
+        <img src="images/gorska/gorska-18.jpg" data-idx="17">
+        <img src="images/gorska/gorska-19.jpg" data-idx="18">
+        <img src="images/gorska/gorska-20.jpg" data-idx="19">
+        <img src="images/gorska/gorska-21.jpg" data-idx="20">
+        <img src="images/gorska/gorska-22.jpg" data-idx="21">
+        <img src="images/gorska/gorska-23.jpg" data-idx="22">
+        <img src="images/gorska/gorska-24.jpg" data-idx="23">
+        <img src="images/gorska/gorska-25.jpg" data-idx="24">
+        <img src="images/gorska/gorska-26.jpg" data-idx="25">
+        <img src="images/gorska/gorska-27.jpg" data-idx="26">
+        <img src="images/gorska/gorska-28.jpg" data-idx="27">
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <div class="card-id">M-01 · ★ 4,96 (26 opinii)</div>
+            <h3>Apartament Górska</h3>
+          </div>
+        </div>
+        <div class="card-addr">Dolny Mokotów, Warszawa — przy ul. Gagarina, blisko Łazienek Królewskich</div>
+
+        <div class="card-specs">
+          <div><span>3</span>pokoje</div>
+          <div><span>72</span>m²</div>
+          <div><span>5</span>gości</div>
+        </div>
+
+        <p class="card-desc">
+          Komfortowy, po generalnym remoncie apartament na 1. piętrze w cichej,
+          zielonej okolicy Dolnego Mokotowa — tuż przy parku Morskie Oko i Łazienkach
+          Królewskich. Dwustronny, słoneczny, z dużą loggią od strony ogrodu.
+          Dwie sypialnie, oddzielna kuchnia, miejsce do pracy.
+        </p>
+
+        <div class="switch" data-mode="airbnb" data-card="1">
+          <div class="thumb"></div>
+          <button type="button" aria-pressed="true" data-target="airbnb">Airbnb</button>
+          <button type="button" aria-pressed="false" data-target="private">Prywatnie</button>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="panel active" data-panel="airbnb" data-card="1">
+            <div class="price-row">
+              <div class="price">Sprawdź cenę<small>na podstawie dat pobytu</small></div>
+            </div>
+            <a class="btn btn-airbnb" href="https://www.airbnb.pl/rooms/46102673" target="_blank" rel="noopener">
+              Rezerwuj na Airbnb →
+            </a>
+          </div>
+          <div class="panel" data-panel="private" data-card="1">
+            <div class="price-row">
+              <div class="price">cena do ustalenia <small>/ miesiąc</small></div>
+            </div>
+            <a class="btn btn-outline" href="#kontakt">Zapytaj o wynajem prywatny</a>
+            <p class="private-note">Najem bez prowizji Airbnb — ustalany bezpośrednio z wynajmującym.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- APARTMENT 2 — POWIŚLE -->
+    <article class="card">
+            <div class="card-media" data-gallery="powisle">
+        <img src="images/powisle/powisle-01.jpg" alt="Apartament Powiśle, widok na centrum Warszawy">
+        <span class="zoom-hint">Powiększ ⤢</span>
+      </div>
+      <div class="thumb-strip" data-gallery-thumbs="powisle">
+        <img src="images/powisle/powisle-01.jpg" class="active" data-idx="0">
+        <img src="images/powisle/powisle-02.jpg" data-idx="1">
+        <img src="images/powisle/powisle-03.jpg" data-idx="2">
+        <img src="images/powisle/powisle-04.jpg" data-idx="3">
+        <img src="images/powisle/powisle-05.jpg" data-idx="4">
+        <img src="images/powisle/powisle-06.jpg" data-idx="5">
+        <img src="images/powisle/powisle-07.jpg" data-idx="6">
+        <img src="images/powisle/powisle-08.jpg" data-idx="7">
+        <img src="images/powisle/powisle-09.jpg" data-idx="8">
+        <img src="images/powisle/powisle-10.jpg" data-idx="9">
+        <img src="images/powisle/powisle-11.jpg" data-idx="10">
+        <img src="images/powisle/powisle-12.jpg" data-idx="11">
+        <img src="images/powisle/powisle-13.jpg" data-idx="12">
+        <img src="images/powisle/powisle-14.jpg" data-idx="13">
+        <img src="images/powisle/powisle-15.jpg" data-idx="14">
+        <img src="images/powisle/powisle-16.jpg" data-idx="15">
+        <img src="images/powisle/powisle-17.jpg" data-idx="16">
+        <img src="images/powisle/powisle-18.jpg" data-idx="17">
+        <img src="images/powisle/powisle-19.jpg" data-idx="18">
+        <img src="images/powisle/powisle-20.jpg" data-idx="19">
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <div class="card-id">M-02 · ★ 4,92 (62 opinie)</div>
+            <h3>Apartament Powiśle</h3>
+          </div>
+        </div>
+        <div class="card-addr">Powiśle, Warszawa — ul. Salezego, przy Bulwarach Wiślanych</div>
+
+        <div class="card-specs">
+          <div><span>2</span>pokoje</div>
+          <div><span>8.</span>piętro (z windą)</div>
+          <div><span>4</span>gości</div>
+        </div>
+
+        <p class="card-desc">
+          Całkowicie odnowiony apartament na 8. piętrze z przepięknym widokiem
+          na centrum Warszawy. Powiśle to spacer od Nowego Światu, Bulwarów
+          Wiślanych i Starego Miasta — w pełni wyposażona kuchnia, zmywarka,
+          pralka, 40-calowy telewizor z Netflixem.
+        </p>
+
+        <div class="switch" data-mode="airbnb" data-card="2">
+          <div class="thumb"></div>
+          <button type="button" aria-pressed="true" data-target="airbnb">Airbnb</button>
+          <button type="button" aria-pressed="false" data-target="private">Prywatnie</button>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="panel active" data-panel="airbnb" data-card="2">
+            <div class="price-row">
+              <div class="price">Sprawdź cenę<small>na podstawie dat pobytu</small></div>
+            </div>
+            <a class="btn btn-airbnb" href="https://www.airbnb.pl/rooms/43598015" target="_blank" rel="noopener">
+              Rezerwuj na Airbnb →
+            </a>
+          </div>
+          <div class="panel" data-panel="private" data-card="2">
+            <div class="price-row">
+              <div class="price">cena do ustalenia <small>/ miesiąc</small></div>
+            </div>
+            <a class="btn btn-outline" href="#kontakt">Zapytaj o wynajem prywatny</a>
+            <p class="private-note">Najem bez prowizji Airbnb — ustalany bezpośrednio z wynajmującym.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section id="kontakt">
+  <div class="section-head">
+    <div>
+      <div class="num">02 / Kontakt</div>
+      <h2>Wynajem prywatny</h2>
+    </div>
+    <p>Bez prowizji Airbnb — napisz, zadzwoń albo wyślij wiadomość przez WhatsApp.</p>
+  </div>
+
+  <div class="contact-wrap">
+    <div class="contact-info">
+      <h3>Porozmawiajmy bezpośrednio</h3>
+      <p>
+        Jeśli interesuje Cię najem bez prowizji platformy,
+        napisz lub zadzwoń — odpiszemy zwykle w ciągu doby.
+      </p>
+      <div class="contact-channels">
+        <a class="channel" href="tel:+48602449896">
+          <span class="channel-label">Telefon</span>
+          <span class="channel-value">+48 602 449 896</span>
+          <span class="channel-arrow">→</span>
+        </a>
+        <a class="channel" href="mailto:mazaraki@poczta.onet.pl">
+          <span class="channel-label">E-mail</span>
+          <span class="channel-value">mazaraki@poczta.onet.pl</span>
+          <span class="channel-arrow">→</span>
+        </a>
+        <a class="channel" href="https://wa.me/48602449896" target="_blank" rel="noopener">
+          <span class="channel-label">WhatsApp</span>
+          <span class="channel-value">+48 602 449 896</span>
+          <span class="channel-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <form id="contact-form">
+        <div class="form-row">
+          <div class="field">
+            <label for="name">Imię i nazwisko</label>
+            <input id="name" name="name" type="text" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="apartment">Które mieszkanie Cię interesuje?</label>
+          <select id="apartment" name="apartment">
+            <option>M-01 — Apartament Górska (Mokotów)</option>
+            <option>M-02 — Apartament Powiśle</option>
+            <option>Jeszcze nie wiem</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message">Wiadomość</label>
+          <textarea id="message" name="message" placeholder="Termin, długość najmu, dodatkowe pytania..."></textarea>
+        </div>
+        <button class="submit-btn" type="submit">Wyślij zapytanie</button>
+        <p class="form-note" id="form-note">Formularz otworzy wiadomość e-mail z wypełnioną treścią — wystarczy ją wysłać.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Zamknij">&times;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Poprzednie zdjęcie">&#8249;</button>
+  <img id="lightbox-img" src="" alt="">
+  <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Następne zdjęcie">&#8250;</button>
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span>© 2026 apartament pod dobrym adresem</span>
+    <span>Wynajem przez Airbnb lub bezpośrednio, bez prowizji.</span>
+  </div>
+</footer>
+
+<script>
+  // Gallery data per apartment, built from thumb strips
+  const galleries = {};
+  document.querySelectorAll('.thumb-strip').forEach(strip => {
+    const key = strip.dataset.galleryThumbs;
+    galleries[key] = Array.from(strip.querySelectorAll('img')).map(img => img.src);
+  });
+
+  let currentGallery = null;
+  let currentIndex = 0;
+
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxCaption = document.getElementById('lightbox-caption');
+  const names = { gorska: 'Apartament Górska', powisle: 'Apartament Powiśle' };
+
+  function openLightbox(key, idx){
+    currentGallery = key;
+    currentIndex = idx;
+    updateLightbox();
+    lightbox.classList.add('open');
+  }
+  function updateLightbox(){
+    const imgs = galleries[currentGallery];
+    lightboxImg.src = imgs[currentIndex];
+    lightboxCaption.textContent = `${names[currentGallery]} — ${currentIndex + 1} / ${imgs.length}`;
+    document.querySelectorAll(`.thumb-strip[data-gallery-thumbs="${currentGallery}"] img`).forEach((t, i) => {
+      t.classList.toggle('active', i === currentIndex);
+    });
+  }
+  function closeLightbox(){ lightbox.classList.remove('open'); }
+  function nextImage(){ currentIndex = (currentIndex + 1) % galleries[currentGallery].length; updateLightbox(); }
+  function prevImage(){ currentIndex = (currentIndex - 1 + galleries[currentGallery].length) % galleries[currentGallery].length; updateLightbox(); }
+
+  // Click on hero image opens lightbox at current thumb selection
+  document.querySelectorAll('.card-media').forEach(media => {
+    media.addEventListener('click', () => {
+      const key = media.dataset.gallery;
+      const activeThumb = document.querySelector(`.thumb-strip[data-gallery-thumbs="${key}"] img.active`);
+      const idx = activeThumb ? parseInt(activeThumb.dataset.idx, 10) : 0;
+      openLightbox(key, idx);
+    });
+  });
+
+  // Thumbnail clicks: update hero image + open lightbox
+  document.querySelectorAll('.thumb-strip').forEach(strip => {
+    const key = strip.dataset.galleryThumbs;
+    strip.querySelectorAll('img').forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const idx = parseInt(thumb.dataset.idx, 10);
+        strip.querySelectorAll('img').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        const hero = document.querySelector(`.card-media[data-gallery="${key}"] img`);
+        if (hero) hero.src = thumb.src;
+      });
+    });
+  });
+
+  document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox-next').addEventListener('click', nextImage);
+  document.getElementById('lightbox-prev').addEventListener('click', prevImage);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+  });
+
+  // Toggle Airbnb / Prywatnie per card
+  document.querySelectorAll('.switch').forEach(sw => {
+    const card = sw.dataset.card;
+    sw.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        sw.dataset.mode = target;
+        sw.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.target === target));
+        document.querySelectorAll(`.panel[data-card="${card}"]`).forEach(p => {
+          p.classList.toggle('active', p.dataset.panel === target);
+        });
+      });
+    });
+  });
+
+  // Contact form -> mailto fallback (static site, no backend)
+  document.getElementById('contact-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const apt = document.getElementById('apartment').value;
+    const msg = document.getElementById('message').value;
+    const body = encodeURIComponent(`Imię i nazwisko: ${name}\nE-mail: ${email}\nMieszkanie: ${apt}\n\nWiadomość:\n${msg}`);
+    window.location.href = `mailto:mazaraki@poczta.onet.pl?subject=Zapytanie o wynajem prywatny&body=${body}`;
+  });
+</script>
+
+</body>
+</html>
